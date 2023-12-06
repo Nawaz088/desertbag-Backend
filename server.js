@@ -68,15 +68,23 @@ app.get('/view-excel', async (req, res) => {
   }
 });
 
-
-
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
 function renderHtmlTable(data) {
   const headerRow = `<tr>${Object.keys(data[0]).map((key) => `<th>${key}</th>`).join('')}</tr>`;
-  const bodyRows = data.map((row) => `<tr>${Object.values(row).map((value) => `<td>${value}</td>`).join('')}</tr>`);
+  const bodyRows = data.map((row) => {
+    const columns = Object.entries(row).map(([key, value]) => {
+      if (key.startsWith('Image')) {
+        // For image columns, create a clickable link
+        return `<td><a href="#" onclick="showImage('${value}')">View Image</a></td>`;
+      } else {
+        return `<td>${value}</td>`;
+      }
+    });
+    return `<tr>${columns.join('')}</tr>`;
+  });
 
   return `<table>${headerRow}${bodyRows.join('')}</table>`;
 }
@@ -110,3 +118,10 @@ async function updateExcel(name, mobile, description, imagePaths) {
     console.error('Error updating Excel file:', error.message);
   }
 }
+
+// Include this script in your HTML
+// Modify this function to display the image as you prefer
+// For example, you can open a modal or set the image as the source of an <img> tag
+const showImage = (imageUrl) => {
+  alert('Displaying image: ' + imageUrl);
+};
